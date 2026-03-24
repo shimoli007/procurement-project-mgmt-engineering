@@ -1,5 +1,7 @@
 const { queryAll, queryOne, runAndSave } = require('../db/connection');
 const { AppError } = require('../utils/errors');
+const { logAudit } = require('../utils/audit');
+const { createNotification } = require('../utils/notify');
 
 function listOrders(req, res, next) {
   try {
@@ -97,6 +99,16 @@ function createOrder(req, res, next) {
     );
 
     const order = queryOne('SELECT * FROM orders WHERE id = ?', [id]);
+    logAudit(req.user.id, 'create', 'order', id, null, order);
+
+    // Notify assignee if assigned
+    if (assigned_to) {
+      createNotification(
+        Number(assigned_to), 'order_assigned', 'Order Assigned',
+        `You have been assigned to order #${id}`, 'order', id
+      );
+    }
+
     res.status(201).json(order);
   } catch (err) {
     next(err);
@@ -130,6 +142,17 @@ function updateOrder(req, res, next) {
     );
 
     const order = queryOne('SELECT * FROM orders WHERE id = ?', [Number(id)]);
+    logAudit(req.user.id, 'update', 'order', Number(id), existing, order);
+
+    // Notify assignee if assignment changed
+    const newAssignedTo = assigned_to ?? existing.assigned_to;
+    if (assigned_to && assigned_to !== existing.assigned_to) {
+      createNotification(
+        Number(assigned_to), 'order_assigned', 'Order Assigned',
+        `You have been assigned to order #${id}`, 'order', Number(id)
+      );
+    }
+
     res.json(order);
   } catch (err) {
     next(err);
@@ -180,6 +203,16 @@ function changeOrderStatus(req, res, next) {
        ORDER BY ot.changed_at ASC`,
       [order.id]
     );
+
+    logAudit(req.user.id, 'status_change', 'order', Number(id), { status: fromStatus }, { status });
+
+    // Notify the requester about status change
+    if (existing.requested_by && existing.requested_by !== req.user.id) {
+      createNotification(
+        existing.requested_by, 'order_status', 'Order Status Updated',
+        `Order #${id} status changed from ${fromStatus} to ${status}`, 'order', Number(id)
+      );
+    }
 
     res.json({ ...order, timeline });
   } catch (err) {

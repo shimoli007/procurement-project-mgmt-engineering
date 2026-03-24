@@ -63,7 +63,7 @@ export const api = {
     return request<T>("PATCH", path, body);
   },
 
-  delete(path: string): Promise<void> {
-    return request<void>("DELETE", path);
+  delete(path: string, body?: unknown): Promise<void> {
+    return request<void>("DELETE", path, body);
   },
 };

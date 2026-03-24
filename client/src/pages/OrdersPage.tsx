@@ -6,12 +6,15 @@ import { useSuppliers } from "@/hooks/useSuppliers";
 import { useProjects } from "@/hooks/useProjects";
 import { useUsers } from "@/hooks/useUsers";
 import { useToast } from "@/components/ui/toast";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { OrdersTable } from "@/components/orders/OrdersTable";
 import { OrderForm } from "@/components/orders/OrderForm";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
+import { ExportButton } from "@/components/spreadsheet/ExportButton";
+import { BulkActions } from "@/components/spreadsheet/BulkActions";
 import { ORDER_STATUSES } from "@/lib/constants";
 import { Plus, ShoppingCart } from "lucide-react";
 import type { Order } from "@/types";
@@ -44,6 +47,9 @@ export default function OrdersPage() {
   const [editOrder, setEditOrder] = useState<Order | null>(null);
   const [timelineOpen, setTimelineOpen] = useState(false);
   const [timelineOrder, setTimelineOrder] = useState<Order | null>(null);
+
+  // Selection state for bulk actions
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   function handleCreate() {
     setEditOrder(null);
@@ -90,6 +96,38 @@ export default function OrdersPage() {
     setTimelineOpen(true);
   }
 
+  function handleToggleSelect(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function handleToggleSelectAll() {
+    if (selectedIds.size === orders.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(orders.map((o) => o.id)));
+    }
+  }
+
+  async function handleBulkAction(action: string, params?: Record<string, unknown>) {
+    const ids = Array.from(selectedIds);
+    if (action === "delete") {
+      await api.delete("/bulk/orders", { orderIds: ids });
+    } else if (action === "update_status") {
+      await api.post("/bulk/orders/status", { orderIds: ids, status: params?.status });
+    } else if (action === "assign_to") {
+      await api.post("/bulk/orders/assign", { orderIds: ids, assignedTo: Number(params?.assigned_to) });
+    }
+    refetch();
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -103,12 +141,18 @@ export default function OrdersPage() {
             </p>
           </div>
         </div>
-        {user?.role === "Procurement" && (
-          <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Order
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ExportButton
+            data={orders as unknown as Record<string, unknown>[]}
+            filename="orders"
+          />
+          {(user?.role === "CEO" || user?.role === "Procurement") && (
+            <Button onClick={handleCreate}>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Order
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -200,9 +244,20 @@ export default function OrdersPage() {
             onStatusChange={handleStatusChange}
             onViewTimeline={handleViewTimeline}
             userRole={user?.role || ""}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
           />
         )}
       </div>
+
+      {/* Bulk actions toolbar */}
+      <BulkActions
+        selectedCount={selectedIds.size}
+        entityType="orders"
+        onAction={handleBulkAction}
+        onClearSelection={() => setSelectedIds(new Set())}
+      />
 
       {/* Order Form Dialog */}
       <OrderForm

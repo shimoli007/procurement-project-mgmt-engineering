@@ -2,7 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'Sales' | 'Engineer' | 'Procurement';
+  role: 'CEO' | 'Sales' | 'Engineer' | 'Procurement';
   created_at: string;
 }
 
@@ -111,4 +111,55 @@ export interface DashboardSummary {
   total_projects: number;
   active_projects: number;
   total_items: number;
+}
+
+export interface Notification {
+  id: number;
+  user_id: number;
+  type: string;
+  title: string;
+  message: string;
+  entity_type: string;
+  entity_id: number;
+  is_read: number;
+  created_at: string;
+}
+
+export interface AuditEntry {
+  id: number;
+  user_id: number;
+  user_name?: string;
+  action: string;
+  entity_type: string;
+  entity_id: number;
+  old_values: string;
+  new_values: string;
+  created_at: string;
+}
+
+export interface ReportSummary {
+  total_orders: number;
+  total_value: number;
+  by_status: { status: string; count: number; value: number }[];
+  by_supplier: { supplier_name: string; count: number; value: number; avg_lead_time: number }[];
+}
+
+export interface SupplierPerformance {
+  supplier_id: number;
+  supplier_name: string;
+  total_orders: number;
+  delivered_orders: number;
+  on_time_pct: number;
+  avg_lead_time: number;
+  total_value: number;
+}
+
+export interface ProjectReportData {
+  project: Project;
+  bom: BomLine[];
+  orders: Order[];
+  material_list: MaterialLine[];
+  total_bom_value: number;
+  total_ordered_value: number;
+  overall_readiness: number;
 }

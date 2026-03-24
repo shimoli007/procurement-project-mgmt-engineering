@@ -44,7 +44,7 @@ export function ProjectsTable({
   userRole,
 }: ProjectsTableProps) {
   const navigate = useNavigate();
-  const isProcurement = userRole === "Procurement";
+  const isProcurement = userRole === "CEO" || userRole === "Procurement";
 
   if (projects.length === 0) {
     return (

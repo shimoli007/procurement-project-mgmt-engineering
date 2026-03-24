@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { Plus, Search, Package } from "lucide-react";
+import { Plus, Search, Package, Upload } from "lucide-react";
 import type { Item } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useItems } from "@/hooks/useItems";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useToast } from "@/components/ui/toast";
 import { ITEM_CATEGORIES } from "@/lib/constants";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -13,6 +14,9 @@ import { Card } from "@/components/ui/card";
 import { ItemsTable } from "@/components/items/ItemsTable";
 import { ItemForm } from "@/components/items/ItemForm";
 import { ItemSuppliers } from "@/components/items/ItemSuppliers";
+import { ImportDialog } from "@/components/spreadsheet/ImportDialog";
+import { ExportButton } from "@/components/spreadsheet/ExportButton";
+import { BulkActions } from "@/components/spreadsheet/BulkActions";
 
 export default function ItemsPage() {
   const { user } = useAuth();
@@ -23,7 +27,7 @@ export default function ItemsPage() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const { items, loading, error, createItem, updateItem, deleteItem } =
+  const { items, loading, error, createItem, updateItem, deleteItem, refetch } =
     useItems(debouncedSearch, categoryFilter);
   const { suppliers } = useSuppliers();
 
@@ -35,7 +39,13 @@ export default function ItemsPage() {
   const [suppliersOpen, setSuppliersOpen] = useState(false);
   const [managingItem, setManagingItem] = useState<Item | null>(null);
 
-  const canEdit = userRole === "Engineer" || userRole === "Procurement";
+  // Import dialog state
+  const [importOpen, setImportOpen] = useState(false);
+
+  // Selection state for bulk actions
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  const canEdit = userRole === "CEO" || userRole === "Engineer" || userRole === "Procurement";
 
   // Debounce search input
   const debounceTimeout = useMemo(() => {
@@ -91,6 +101,36 @@ export default function ItemsPage() {
     }
   }
 
+  function handleToggleSelect(id: number) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function handleToggleSelectAll() {
+    if (selectedIds.size === items.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(items.map((i) => i.id)));
+    }
+  }
+
+  async function handleBulkAction(action: string, params?: Record<string, unknown>) {
+    const ids = Array.from(selectedIds);
+    if (action === "delete") {
+      await api.delete("/bulk/items", { itemIds: ids });
+    } else if (action === "update_category") {
+      await api.post("/bulk/items/category", { itemIds: ids, category: params?.category });
+    }
+    refetch();
+  }
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -104,12 +144,22 @@ export default function ItemsPage() {
             Manage your inventory items and their supplier relationships.
           </p>
         </div>
-        {canEdit && (
-          <Button onClick={handleAddItem}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Item
+        <div className="flex items-center gap-2">
+          <ExportButton
+            data={items as unknown as Record<string, unknown>[]}
+            filename="items"
+          />
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import
           </Button>
-        )}
+          {canEdit && (
+            <Button onClick={handleAddItem}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Item
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -156,9 +206,20 @@ export default function ItemsPage() {
             onDelete={handleDeleteItem}
             onManageSuppliers={handleManageSuppliers}
             userRole={userRole}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
           />
         )}
       </Card>
+
+      {/* Bulk actions toolbar */}
+      <BulkActions
+        selectedCount={selectedIds.size}
+        entityType="items"
+        onAction={handleBulkAction}
+        onClearSelection={() => setSelectedIds(new Set())}
+      />
 
       {/* Dialogs */}
       <ItemForm
@@ -173,6 +234,13 @@ export default function ItemsPage() {
         onOpenChange={setSuppliersOpen}
         item={managingItem}
         suppliers={suppliers}
+      />
+
+      <ImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        entityType="items"
+        onSuccess={refetch}
       />
     </div>
   );

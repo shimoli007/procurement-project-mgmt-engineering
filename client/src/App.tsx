@@ -11,6 +11,13 @@ import OrdersPage from '@/pages/OrdersPage'
 import ProjectsPage from '@/pages/ProjectsPage'
 import ProjectDetailPage from '@/pages/ProjectDetailPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import ReportsPage from '@/pages/ReportsPage'
+import NotificationsPage from '@/pages/NotificationsPage'
+import ActivityPage from '@/pages/ActivityPage'
+import SettingsPage from '@/pages/SettingsPage'
+import UsersPage from '@/pages/UsersPage'
+import AIInsightsPage from '@/pages/AIInsightsPage'
+import ApiKeysPage from '@/pages/ApiKeysPage'
 
 function App() {
   return (
@@ -27,6 +34,13 @@ function App() {
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/projects" element={<ProjectsPage />} />
                 <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/activity" element={<ActivityPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/users" element={<UsersPage />} />
+                <Route path="/ai-insights" element={<AIInsightsPage />} />
+                <Route path="/api-keys" element={<ApiKeysPage />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

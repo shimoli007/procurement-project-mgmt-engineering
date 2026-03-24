@@ -1,5 +1,6 @@
 const { queryAll, queryOne, runAndSave } = require('../db/connection');
 const { AppError } = require('../utils/errors');
+const { logAudit } = require('../utils/audit');
 
 function listSuppliers(req, res, next) {
   try {
@@ -46,6 +47,7 @@ function createSupplier(req, res, next) {
       [name, contact_email || null, contact_phone || null, address || null, notes || null]
     );
     const supplier = queryOne('SELECT * FROM suppliers WHERE id = ?', [id]);
+    logAudit(req.user ? req.user.id : null, 'create', 'supplier', id, null, supplier);
     res.status(201).json(supplier);
   } catch (err) {
     next(err);
@@ -71,6 +73,7 @@ function updateSupplier(req, res, next) {
       ]
     );
     const supplier = queryOne('SELECT * FROM suppliers WHERE id = ?', [Number(id)]);
+    logAudit(req.user ? req.user.id : null, 'update', 'supplier', Number(id), existing, supplier);
     res.json(supplier);
   } catch (err) {
     next(err);
@@ -84,6 +87,7 @@ function deleteSupplier(req, res, next) {
     if (!existing) throw new AppError('Supplier not found', 404);
 
     runAndSave('DELETE FROM suppliers WHERE id = ?', [Number(id)]);
+    logAudit(req.user ? req.user.id : null, 'delete', 'supplier', Number(id), existing, null);
     res.json({ message: 'Supplier deleted' });
   } catch (err) {
     next(err);

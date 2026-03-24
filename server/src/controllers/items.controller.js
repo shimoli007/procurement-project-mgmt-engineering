@@ -1,5 +1,6 @@
 const { queryAll, queryOne, runAndSave } = require('../db/connection');
 const { AppError } = require('../utils/errors');
+const { logAudit } = require('../utils/audit');
 
 function listItems(req, res, next) {
   try {
@@ -53,6 +54,7 @@ function createItem(req, res, next) {
       [name, description || null, unit || 'pcs', category || null]
     );
     const item = queryOne('SELECT * FROM items WHERE id = ?', [id]);
+    logAudit(req.user ? req.user.id : null, 'create', 'item', id, null, item);
     res.status(201).json(item);
   } catch (err) {
     next(err);
@@ -77,6 +79,7 @@ function updateItem(req, res, next) {
       ]
     );
     const item = queryOne('SELECT * FROM items WHERE id = ?', [Number(id)]);
+    logAudit(req.user ? req.user.id : null, 'update', 'item', Number(id), existing, item);
     res.json(item);
   } catch (err) {
     next(err);
@@ -90,6 +93,7 @@ function deleteItem(req, res, next) {
     if (!existing) throw new AppError('Item not found', 404);
 
     runAndSave('DELETE FROM items WHERE id = ?', [Number(id)]);
+    logAudit(req.user ? req.user.id : null, 'delete', 'item', Number(id), existing, null);
     res.json({ message: 'Item deleted' });
   } catch (err) {
     next(err);

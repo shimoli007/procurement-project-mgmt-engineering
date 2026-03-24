@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, Search, Truck } from "lucide-react";
+import { Plus, Search, Truck, Upload } from "lucide-react";
 import type { Supplier } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { useSuppliers } from "@/hooks/useSuppliers";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { SuppliersTable } from "@/components/suppliers/SuppliersTable";
 import { SupplierForm } from "@/components/suppliers/SupplierForm";
+import { ImportDialog } from "@/components/spreadsheet/ImportDialog";
+import { ExportButton } from "@/components/spreadsheet/ExportButton";
 
 export default function SuppliersPage() {
   const { user } = useAuth();
@@ -22,13 +24,15 @@ export default function SuppliersPage() {
     createSupplier,
     updateSupplier,
     deleteSupplier,
+    refetch,
   } = useSuppliers();
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
-  const canEdit = userRole === "Procurement";
+  const canEdit = userRole === "CEO" || userRole === "Procurement";
 
   const filteredSuppliers = useMemo(() => {
     if (!search.trim()) return suppliers;
@@ -93,12 +97,22 @@ export default function SuppliersPage() {
             Manage your supplier contacts and information.
           </p>
         </div>
-        {canEdit && (
-          <Button onClick={handleAddSupplier}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Supplier
+        <div className="flex items-center gap-2">
+          <ExportButton
+            data={filteredSuppliers as unknown as Record<string, unknown>[]}
+            filename="suppliers"
+          />
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import
           </Button>
-        )}
+          {canEdit && (
+            <Button onClick={handleAddSupplier}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Supplier
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Search */}
@@ -140,6 +154,13 @@ export default function SuppliersPage() {
         onOpenChange={setFormOpen}
         supplier={editingSupplier}
         onSubmit={handleFormSubmit}
+      />
+
+      <ImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        entityType="suppliers"
+        onSuccess={refetch}
       />
     </div>
   );

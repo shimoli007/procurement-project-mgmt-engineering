@@ -8,8 +8,15 @@ import {
   Users,
   LogOut,
   Wrench,
+  BarChart3,
+  Bell,
+  History,
+  Settings,
+  Sparkles,
+  Key,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useNotifications } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -28,7 +35,13 @@ const navItems: NavItem[] = [
   { label: "Suppliers", href: "/suppliers", icon: Truck },
   { label: "Orders", href: "/orders", icon: ShoppingCart },
   { label: "Projects", href: "/projects", icon: FolderKanban },
-  { label: "Users", href: "/users", icon: Users, allowedRoles: ["Procurement"] },
+  { label: "Users", href: "/users", icon: Users, allowedRoles: ["CEO", "Procurement"] },
+  { label: "Reports", href: "/reports", icon: BarChart3 },
+  { label: "Notifications", href: "/notifications", icon: Bell },
+  { label: "AI Insights", href: "/ai-insights", icon: Sparkles },
+  { label: "Activity", href: "/activity", icon: History, allowedRoles: ["CEO", "Procurement"] },
+  { label: "Settings", href: "/settings", icon: Settings, allowedRoles: ["CEO", "Procurement"] },
+  { label: "API & Integrations", href: "/api-keys", icon: Key, allowedRoles: ["CEO"] },
 ];
 
 interface SidebarProps {
@@ -39,6 +52,7 @@ interface SidebarProps {
 export function Sidebar({ open, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const { unreadCount } = useNotifications();
 
   const filteredItems = navItems.filter(
     (item) =>
@@ -47,6 +61,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   const roleBadgeVariant = (role: string) => {
     switch (role) {
+      case "CEO":
+        return "default" as const;
       case "Procurement":
         return "default" as const;
       case "Engineer":
@@ -107,6 +123,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     {item.label}
+                    {item.label === "Notifications" && unreadCount > 0 && (
+                      <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );

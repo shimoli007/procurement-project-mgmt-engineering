@@ -1,5 +1,7 @@
 const { queryAll, queryOne, runAndSave } = require('../db/connection');
 const { AppError } = require('../utils/errors');
+const { logAudit } = require('../utils/audit');
+const { createNotification } = require('../utils/notify');
 
 function listProjects(req, res, next) {
   try {
@@ -55,6 +57,17 @@ function createProject(req, res, next) {
       [name, description || null, client_name || null, status || 'Active', start_date || null, target_date || null, req.user.id]
     );
     const project = queryOne('SELECT * FROM projects WHERE id = ?', [id]);
+    logAudit(req.user.id, 'create', 'project', id, null, project);
+
+    // Notify all Procurement users about new project
+    const procurementUsers = queryAll("SELECT id FROM users WHERE role = 'Procurement' AND id != ?", [req.user.id]);
+    for (const u of procurementUsers) {
+      createNotification(
+        u.id, 'project_created', 'New Project Created',
+        `Project "${name}" has been created`, 'project', id
+      );
+    }
+
     res.status(201).json(project);
   } catch (err) {
     next(err);
@@ -81,6 +94,7 @@ function updateProject(req, res, next) {
       ]
     );
     const project = queryOne('SELECT * FROM projects WHERE id = ?', [Number(id)]);
+    logAudit(req.user.id, 'update', 'project', Number(id), existing, project);
     res.json(project);
   } catch (err) {
     next(err);
@@ -94,6 +108,7 @@ function deleteProject(req, res, next) {
     if (!existing) throw new AppError('Project not found', 404);
 
     runAndSave('DELETE FROM projects WHERE id = ?', [Number(id)]);
+    logAudit(req.user.id, 'delete', 'project', Number(id), existing, null);
     res.json({ message: 'Project deleted' });
   } catch (err) {
     next(err);

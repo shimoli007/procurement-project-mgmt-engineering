@@ -15,11 +15,12 @@ import {
 import { Package, Loader2 } from "lucide-react";
 
 const DEMO_ACCOUNTS = [
-  { role: "Sales", email: "alice@procureeng.com", password: "password123" },
-  { role: "Engineer", email: "bob@procureeng.com", password: "password123" },
+  { role: "CEO", email: "irene@company.com", password: "password123" },
+  { role: "Sales", email: "alice@company.com", password: "password123" },
+  { role: "Engineer", email: "bob@company.com", password: "password123" },
   {
     role: "Procurement",
-    email: "carol@procureeng.com",
+    email: "carol@company.com",
     password: "password123",
   },
 ];

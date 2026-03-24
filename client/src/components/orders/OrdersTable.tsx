@@ -25,6 +25,9 @@ interface OrdersTableProps {
   onStatusChange: (order: Order, status: string) => void;
   onViewTimeline: (order: Order) => void;
   userRole: string;
+  selectedIds?: Set<number>;
+  onToggleSelect?: (id: number) => void;
+  onToggleSelectAll?: () => void;
 }
 
 const statusColor: Record<string, string> = {
@@ -52,8 +55,11 @@ export function OrdersTable({
   onStatusChange,
   onViewTimeline,
   userRole,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
 }: OrdersTableProps) {
-  const isProcurement = userRole === "Procurement";
+  const isProcurement = userRole === "CEO" || userRole === "Procurement";
 
   if (orders.length === 0) {
     return (
@@ -68,6 +74,16 @@ export function OrdersTable({
     <Table>
       <TableHeader>
         <TableRow>
+          {onToggleSelect && (
+            <TableHead className="w-10">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300"
+                checked={!!selectedIds && selectedIds.size === orders.length && orders.length > 0}
+                onChange={() => onToggleSelectAll?.()}
+              />
+            </TableHead>
+          )}
           <TableHead>Order #</TableHead>
           <TableHead>Item</TableHead>
           <TableHead>Project</TableHead>
@@ -86,8 +102,21 @@ export function OrdersTable({
           return (
             <TableRow
               key={order.id}
-              className={cn(overdue && "bg-red-50 dark:bg-red-950/20")}
+              className={cn(
+                overdue && "bg-red-50 dark:bg-red-950/20",
+                selectedIds?.has(order.id) && "bg-primary/5"
+              )}
             >
+              {onToggleSelect && (
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300"
+                    checked={selectedIds?.has(order.id) ?? false}
+                    onChange={() => onToggleSelect(order.id)}
+                  />
+                </TableCell>
+              )}
               <TableCell className="font-medium">
                 #{order.id}
                 {overdue && (

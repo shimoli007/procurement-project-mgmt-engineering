@@ -37,7 +37,12 @@ async function seed() {
     ['Carol Davis', 'carol@company.com', passwordHash, 'Procurement']
   );
 
-  console.log(`Created 3 users (IDs: ${aliceId}, ${bobId}, ${carolId})`);
+  const ireneId = runAndSave(
+    'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+    ['Irene Otieno', 'irene@company.com', passwordHash, 'CEO']
+  );
+
+  console.log(`Created 4 users (IDs: ${aliceId}, ${bobId}, ${carolId}, ${ireneId})`);
 
   // ---- SUPPLIERS ----
   const suppliersData = [

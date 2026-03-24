@@ -28,7 +28,7 @@ export function SuppliersTable({
   onDelete,
   userRole,
 }: SuppliersTableProps) {
-  const canEdit = userRole === "Procurement";
+  const canEdit = userRole === "CEO" || userRole === "Procurement";
 
   if (suppliers.length === 0) {
     return (

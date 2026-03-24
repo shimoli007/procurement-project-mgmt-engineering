@@ -26,6 +26,7 @@ import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ShoppingCart, FolderKanban } from "lucide-react";
+import { ProjectRiskCard } from "@/components/ai/ProjectRiskCard";
 import type { Project, Order } from "@/types";
 
 const statusColor: Record<string, string> = {
@@ -227,7 +228,7 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {user?.role === "Procurement" && (
+        {(user?.role === "CEO" || user?.role === "Procurement") && (
           <Button onClick={() => setGenerateDialogOpen(true)}>
             <ShoppingCart className="mr-2 h-4 w-4" />
             Generate Orders
@@ -243,6 +244,7 @@ export default function ProjectDetailPage() {
           <TabsTrigger value="orders">
             Orders ({orders.length})
           </TabsTrigger>
+          <TabsTrigger value="risk">Risk Assessment</TabsTrigger>
         </TabsList>
 
         <TabsContent value="bom" className="mt-4">
@@ -268,6 +270,12 @@ export default function ProjectDetailPage() {
                 userRole={user?.role || ""}
               />
             )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="risk" className="mt-4">
+          <div className="max-w-2xl">
+            <ProjectRiskCard projectId={projectId} />
           </div>
         </TabsContent>
       </Tabs>

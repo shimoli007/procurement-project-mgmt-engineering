@@ -81,4 +81,46 @@ async function updateUser(req, res, next) {
   }
 }
 
-module.exports = { listUsers, createUser, updateUser };
+async function resetPassword(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { new_password } = req.body;
+
+    if (!new_password) {
+      throw new AppError('new_password is required', 400);
+    }
+
+    const existing = queryOne('SELECT id FROM users WHERE id = ?', [Number(id)]);
+    if (!existing) throw new AppError('User not found', 404);
+
+    const password_hash = await bcrypt.hash(new_password, 10);
+    runAndSave(
+      `UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?`,
+      [password_hash, Number(id)]
+    );
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function deactivateUser(req, res, next) {
+  try {
+    const { id } = req.params;
+    const existing = queryOne('SELECT id, role FROM users WHERE id = ?', [Number(id)]);
+    if (!existing) throw new AppError('User not found', 404);
+
+    runAndSave(
+      `UPDATE users SET role = 'Deactivated', updated_at = datetime('now') WHERE id = ?`,
+      [Number(id)]
+    );
+
+    const user = queryOne('SELECT id, name, email, role, created_at, updated_at FROM users WHERE id = ?', [Number(id)]);
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { listUsers, createUser, updateUser, resetPassword, deactivateUser };

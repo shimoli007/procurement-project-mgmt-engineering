@@ -32,6 +32,9 @@ interface ItemsTableProps {
   onDelete: (item: Item) => void;
   onManageSuppliers: (item: Item) => void;
   userRole: string;
+  selectedIds?: Set<number>;
+  onToggleSelect?: (id: number) => void;
+  onToggleSelectAll?: () => void;
 }
 
 export function ItemsTable({
@@ -40,8 +43,11 @@ export function ItemsTable({
   onDelete,
   onManageSuppliers,
   userRole,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
 }: ItemsTableProps) {
-  const canEdit = userRole === "Engineer" || userRole === "Procurement";
+  const canEdit = userRole === "CEO" || userRole === "Engineer" || userRole === "Procurement";
 
   if (items.length === 0) {
     return (
@@ -63,6 +69,16 @@ export function ItemsTable({
     <Table>
       <TableHeader>
         <TableRow>
+          {onToggleSelect && (
+            <TableHead className="w-10">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300"
+                checked={!!selectedIds && selectedIds.size === items.length && items.length > 0}
+                onChange={() => onToggleSelectAll?.()}
+              />
+            </TableHead>
+          )}
           <TableHead>Name</TableHead>
           <TableHead>Category</TableHead>
           <TableHead>Unit</TableHead>
@@ -73,7 +89,17 @@ export function ItemsTable({
       </TableHeader>
       <TableBody>
         {items.map((item) => (
-          <TableRow key={item.id}>
+          <TableRow key={item.id} className={selectedIds?.has(item.id) ? "bg-primary/5" : ""}>
+            {onToggleSelect && (
+              <TableCell>
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300"
+                  checked={selectedIds?.has(item.id) ?? false}
+                  onChange={() => onToggleSelect(item.id)}
+                />
+              </TableCell>
+            )}
             <TableCell className="font-medium">{item.name}</TableCell>
             <TableCell>
               <Badge
