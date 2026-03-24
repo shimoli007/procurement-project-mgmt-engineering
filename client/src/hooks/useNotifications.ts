@@ -9,8 +9,8 @@ export function useNotifications() {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      const data = await api.get<Notification[]>("/notifications");
-      setNotifications(data);
+      const data = await api.get<{ notifications: Notification[]; unread_count: number }>("/notifications");
+      setNotifications(Array.isArray(data) ? data : data.notifications ?? []);
     } catch {
       // silently fail on polling
     } finally {

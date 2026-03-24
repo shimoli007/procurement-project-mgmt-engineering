@@ -69,7 +69,7 @@ export default function LoginPage() {
             <Package className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            ProcureEng
+            Cynea ProcureEng
           </h1>
           <p className="mt-1 text-sm text-blue-200/70">
             Procurement &amp; Project Management

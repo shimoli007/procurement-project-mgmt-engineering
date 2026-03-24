@@ -43,7 +43,7 @@ export function PrintableReport({
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Wrench className="h-4 w-4" />
             </div>
-            <span className="text-lg font-bold tracking-tight">ProcureEng</span>
+            <span className="text-lg font-bold tracking-tight">Cynea ProcureEng</span>
           </div>
           <h1 className="mt-3 text-2xl font-bold">{title}</h1>
           {subtitle && (
@@ -57,7 +57,7 @@ export function PrintableReport({
         {/* Footer */}
         <div className="mt-8 border-t border-border pt-4 text-xs text-muted-foreground">
           Generated on {new Date().toLocaleDateString()} at{" "}
-          {new Date().toLocaleTimeString()} | ProcureEng Procurement Management System
+          {new Date().toLocaleTimeString()} | Cynea ProcureEng Procurement Management System
         </div>
       </div>
     </>
