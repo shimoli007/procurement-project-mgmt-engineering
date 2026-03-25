@@ -26,7 +26,7 @@ export function InlineEdit({
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
-  const successTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const successTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     if (editing && inputRef.current) {

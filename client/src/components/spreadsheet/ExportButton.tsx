@@ -67,7 +67,7 @@ export function ExportButton({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button variant="outline" size="sm" disabled={exporting}>
           {exporting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

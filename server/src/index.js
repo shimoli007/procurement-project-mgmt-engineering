@@ -47,6 +47,11 @@ app.use('/api/search', searchRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/organization', organizationRoutes);
 
+// Serve React frontend in production
+const path = require('path');
+const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
+app.use(express.static(clientDist));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -54,6 +59,11 @@ app.get('/api/health', (req, res) => {
 
 // Error handler (must be last)
 app.use(errorHandler);
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
+});
 
 // Initialize database then start server
 async function start() {

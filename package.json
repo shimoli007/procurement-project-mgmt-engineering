@@ -8,7 +8,9 @@
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w client",
     "db:seed": "npm run seed -w server",
-    "start": "npm run start -w server"
+    "start": "npm run start -w server",
+    "render:build": "npm install && npm run build -w client && npm run seed -w server",
+    "render:start": "node server/src/index.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
