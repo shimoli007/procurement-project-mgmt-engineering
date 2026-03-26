@@ -24,6 +24,7 @@ interface ItemFormProps {
 
 export function ItemForm({ open, onOpenChange, item, onSubmit }: ItemFormProps) {
   const [name, setName] = useState("");
+  const [itemCode, setItemCode] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>(ITEM_CATEGORIES[0]);
   const [unit, setUnit] = useState<string>(ITEM_UNITS[0]);
@@ -36,11 +37,13 @@ export function ItemForm({ open, onOpenChange, item, onSubmit }: ItemFormProps) 
     if (open) {
       if (item) {
         setName(item.name);
+        setItemCode(item.item_code || "");
         setDescription(item.description || "");
         setCategory(item.category);
         setUnit(item.unit);
       } else {
         setName("");
+        setItemCode("");
         setDescription("");
         setCategory(ITEM_CATEGORIES[0]);
         setUnit(ITEM_UNITS[0]);
@@ -60,7 +63,7 @@ export function ItemForm({ open, onOpenChange, item, onSubmit }: ItemFormProps) 
     setSubmitting(true);
     setError("");
     try {
-      await onSubmit({ name: trimmedName, description, category, unit });
+      await onSubmit({ name: trimmedName, item_code: itemCode.trim() || undefined, description, category, unit });
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save item.");
@@ -90,6 +93,16 @@ export function ItemForm({ open, onOpenChange, item, onSubmit }: ItemFormProps) 
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter item name"
               autoFocus
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="item-code">Item Code / Part No.</Label>
+            <Input
+              id="item-code"
+              value={itemCode}
+              onChange={(e) => setItemCode(e.target.value)}
+              placeholder="e.g. MCB-3P-32A"
             />
           </div>
 

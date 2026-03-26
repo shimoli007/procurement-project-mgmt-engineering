@@ -9,7 +9,7 @@
     "build": "npm run build -w client",
     "db:seed": "npm run seed -w server",
     "start": "npm run start -w server",
-    "render:build": "npm install && npm run build -w client && npm run seed -w server",
+    "render:build": "npm install && npm run build -w client",
     "render:start": "node server/src/index.js"
   },
   "devDependencies": {

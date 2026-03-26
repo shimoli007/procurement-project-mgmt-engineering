@@ -15,6 +15,10 @@ async function login(req, res, next) {
       throw new AppError('Invalid email or password', 401);
     }
 
+    if (user.role === 'Deactivated') {
+      throw new AppError('This account has been deactivated', 403);
+    }
+
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       throw new AppError('Invalid email or password', 401);

@@ -13,6 +13,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import { TrendingUp } from "lucide-react";
 
@@ -47,8 +48,9 @@ export default function OrdersChart({ summary, loading }: OrdersChartProps) {
     ? [
         { status: "Pending", count: summary.pending_orders, fill: STATUS_COLORS.Pending },
         { status: "Ordered", count: summary.ordered_count, fill: STATUS_COLORS.Ordered },
+        { status: "Shipped", count: summary.shipped_count, fill: STATUS_COLORS.Shipped },
         { status: "Delivered", count: summary.delivered_count, fill: STATUS_COLORS.Delivered },
-        { status: "Cancelled", count: summary.total_orders - summary.pending_orders - summary.ordered_count - summary.delivered_count, fill: STATUS_COLORS.Cancelled },
+        { status: "Cancelled", count: Math.max(0, summary.total_orders - summary.pending_orders - summary.ordered_count - summary.shipped_count - summary.delivered_count), fill: STATUS_COLORS.Cancelled },
       ]
     : [];
 
@@ -92,7 +94,7 @@ export default function OrdersChart({ summary, loading }: OrdersChartProps) {
                 maxBarSize={56}
               >
                 {data.map((entry) => (
-                  <rect key={entry.status} fill={entry.fill} />
+                  <Cell key={entry.status} fill={entry.fill} />
                 ))}
               </Bar>
             </BarChart>

@@ -42,7 +42,7 @@ export function useDashboard(): UseDashboardResult {
 
     interface RawSummary {
       projects: { total: number; active: number };
-      orders: { total: number; pending: number; ordered: number; shipped: number; delivered: number };
+      orders: { total: number; pending: number; ordered: number; shipped: number; delivered: number; overdue: number };
       items: number;
       suppliers: number;
       total_order_value: number;
@@ -59,11 +59,13 @@ export function useDashboard(): UseDashboardResult {
           total_orders: raw.orders?.total ?? 0,
           pending_orders: raw.orders?.pending ?? 0,
           ordered_count: raw.orders?.ordered ?? 0,
+          shipped_count: raw.orders?.shipped ?? 0,
           delivered_count: raw.orders?.delivered ?? 0,
-          overdue_count: 0,
+          overdue_count: raw.orders?.overdue ?? 0,
           total_projects: raw.projects?.total ?? 0,
           active_projects: raw.projects?.active ?? 0,
           total_items: raw.items ?? 0,
+          total_order_value: raw.total_order_value ?? 0,
         };
         setSummary(s);
         setRecentOrders(Array.isArray(r) ? r : []);

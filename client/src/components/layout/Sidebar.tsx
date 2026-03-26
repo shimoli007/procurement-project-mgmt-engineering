@@ -30,7 +30,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/", icon: LayoutDashboard },
   { label: "Items", href: "/items", icon: Package },
   { label: "Suppliers", href: "/suppliers", icon: Truck },
   { label: "Orders", href: "/orders", icon: ShoppingCart },
@@ -105,7 +105,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             {filteredItems.map((item) => {
               const isActive =
                 location.pathname === item.href ||
-                (item.href !== "/dashboard" &&
+                (item.href !== "/" &&
                   location.pathname.startsWith(item.href));
               const Icon = item.icon;
 

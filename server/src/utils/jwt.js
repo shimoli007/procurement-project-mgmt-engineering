@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'procurement-mgmt-secret-key-2024';
+const SECRET = process.env.JWT_SECRET;
+if (!SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set');
+  process.exit(1);
+}
 const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
 function signToken(payload) {

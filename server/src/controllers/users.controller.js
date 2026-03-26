@@ -84,16 +84,17 @@ async function updateUser(req, res, next) {
 async function resetPassword(req, res, next) {
   try {
     const { id } = req.params;
-    const { new_password } = req.body;
+    const { new_password, password } = req.body;
+    const pwd = new_password || password;
 
-    if (!new_password) {
-      throw new AppError('new_password is required', 400);
+    if (!pwd) {
+      throw new AppError('password is required', 400);
     }
 
     const existing = queryOne('SELECT id FROM users WHERE id = ?', [Number(id)]);
     if (!existing) throw new AppError('User not found', 404);
 
-    const password_hash = await bcrypt.hash(new_password, 10);
+    const password_hash = await bcrypt.hash(pwd, 10);
     runAndSave(
       `UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?`,
       [password_hash, Number(id)]

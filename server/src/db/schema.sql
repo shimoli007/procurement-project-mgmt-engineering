@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS suppliers (
 CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    item_code TEXT,
     description TEXT,
     unit TEXT NOT NULL DEFAULT 'pcs',
     category TEXT,

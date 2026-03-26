@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { authenticate } = require('../middleware/auth');
+const { requireRole } = require('../middleware/rbac');
 const {
   getAllSettings,
   getSetting,
@@ -13,7 +14,7 @@ router.use(authenticate);
 
 router.get('/', getAllSettings);
 router.get('/:key', getSetting);
-router.put('/:key', updateSetting);
-router.post('/bulk', bulkUpdateSettings);
+router.put('/:key', requireRole('CEO', 'Procurement'), updateSetting);
+router.post('/bulk', requireRole('CEO', 'Procurement'), bulkUpdateSettings);
 
 module.exports = router;

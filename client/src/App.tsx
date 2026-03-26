@@ -36,11 +36,16 @@ function App() {
                 <Route path="/projects/:id" element={<ProjectDetailPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/activity" element={<ActivityPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/users" element={<UsersPage />} />
                 <Route path="/ai-insights" element={<AIInsightsPage />} />
-                <Route path="/api-keys" element={<ApiKeysPage />} />
+                {/* Admin routes - restricted */}
+                <Route element={<ProtectedRoute allowedRoles={["CEO", "Procurement"]} />}>
+                  <Route path="/activity" element={<ActivityPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/users" element={<UsersPage />} />
+                </Route>
+                <Route element={<ProtectedRoute allowedRoles={["CEO"]} />}>
+                  <Route path="/api-keys" element={<ApiKeysPage />} />
+                </Route>
               </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />

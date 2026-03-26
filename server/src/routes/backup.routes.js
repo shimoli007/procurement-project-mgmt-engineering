@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { authenticate } = require('../middleware/auth');
+const { requireRole } = require('../middleware/rbac');
 const {
   exportDatabase,
   restoreDatabase,
@@ -10,8 +11,8 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get('/export', exportDatabase);
-router.post('/restore', restoreDatabase);
-router.get('/download-db', downloadDb);
+router.get('/export', requireRole('CEO', 'Procurement'), exportDatabase);
+router.post('/restore', requireRole('CEO'), restoreDatabase);
+router.get('/download-db', requireRole('CEO'), downloadDb);
 
 module.exports = router;

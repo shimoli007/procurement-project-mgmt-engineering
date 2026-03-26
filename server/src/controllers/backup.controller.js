@@ -23,7 +23,11 @@ function exportDatabase(req, res, next) {
   try {
     const data = {};
     for (const table of TABLE_ORDER) {
-      data[table] = queryAll(`SELECT * FROM ${table}`);
+      if (table === 'users') {
+        data[table] = queryAll('SELECT id, name, email, role, created_at, updated_at FROM users');
+      } else {
+        data[table] = queryAll(`SELECT * FROM ${table}`);
+      }
     }
 
     const exportPayload = {

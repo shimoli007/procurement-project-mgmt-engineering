@@ -18,6 +18,7 @@ export interface Supplier {
 export interface Item {
   id: number;
   name: string;
+  item_code?: string;
   description: string;
   unit: string;
   category: string;
@@ -106,11 +107,13 @@ export interface DashboardSummary {
   total_orders: number;
   pending_orders: number;
   ordered_count: number;
+  shipped_count: number;
   delivered_count: number;
   overdue_count: number;
   total_projects: number;
   active_projects: number;
   total_items: number;
+  total_order_value: number;
 }
 
 export interface Notification {

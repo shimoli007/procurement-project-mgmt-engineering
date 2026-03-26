@@ -9,6 +9,7 @@ const {
 const itemSchema = {
   body: {
     name: { required: true, type: 'string', min: 1 },
+    item_code: { required: false, type: 'string' },
     unit: { required: true, type: 'string' },
     category: { required: false, type: 'string' },
   },
@@ -17,6 +18,7 @@ const itemSchema = {
 const itemUpdateSchema = {
   body: {
     name: { required: false, type: 'string', min: 1 },
+    item_code: { required: false, type: 'string' },
     unit: { required: false, type: 'string' },
     category: { required: false, type: 'string' },
   },

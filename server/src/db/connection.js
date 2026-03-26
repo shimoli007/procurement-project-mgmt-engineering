@@ -25,6 +25,12 @@ async function initDb() {
   const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8');
   db.exec(schema);
 
+  // Migrations: add columns if missing
+  try { db.run("SELECT item_code FROM items LIMIT 0"); } catch (e) {
+    db.run("ALTER TABLE items ADD COLUMN item_code TEXT");
+    console.log('Migration: added item_code to items');
+  }
+
   // Save after schema creation
   save();
 

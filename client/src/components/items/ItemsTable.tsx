@@ -80,6 +80,7 @@ export function ItemsTable({
             </TableHead>
           )}
           <TableHead>Name</TableHead>
+          <TableHead>Code</TableHead>
           <TableHead>Category</TableHead>
           <TableHead>Unit</TableHead>
           <TableHead className="hidden md:table-cell">Description</TableHead>
@@ -101,6 +102,7 @@ export function ItemsTable({
               </TableCell>
             )}
             <TableCell className="font-medium">{item.name}</TableCell>
+            <TableCell className="text-muted-foreground font-mono text-xs">{item.item_code || "-"}</TableCell>
             <TableCell>
               <Badge
                 className={

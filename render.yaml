@@ -2,7 +2,7 @@ services:
   - type: web
     name: cynea-procureeng
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm run render:build
     startCommand: npm run render:start
     envVars:
@@ -10,3 +10,7 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+    disk:
+      name: procurement-data
+      mountPath: /opt/render/project/src/server/data
+      sizeGB: 1

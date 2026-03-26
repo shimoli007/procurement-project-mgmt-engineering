@@ -12,6 +12,7 @@ function getSummary(req, res, next) {
     const totalItems = queryOne('SELECT COUNT(*) as count FROM items');
     const totalSuppliers = queryOne('SELECT COUNT(*) as count FROM suppliers');
     const totalValue = queryOne("SELECT COALESCE(SUM(quantity * unit_price), 0) as total FROM orders WHERE status != 'Cancelled'");
+    const overdueOrders = queryOne("SELECT COUNT(*) as count FROM orders WHERE expected_date < datetime('now') AND status NOT IN ('Delivered', 'Cancelled')");
 
     res.json({
       projects: {
@@ -24,6 +25,7 @@ function getSummary(req, res, next) {
         ordered: orderedOrders.count,
         shipped: shippedOrders.count,
         delivered: deliveredOrders.count,
+        overdue: overdueOrders.count,
       },
       items: totalItems.count,
       suppliers: totalSuppliers.count,

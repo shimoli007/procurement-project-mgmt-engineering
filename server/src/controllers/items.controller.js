@@ -9,8 +9,8 @@ function listItems(req, res, next) {
     const params = [];
 
     if (search) {
-      sql += ' AND (name LIKE ? OR description LIKE ?)';
-      params.push(`%${search}%`, `%${search}%`);
+      sql += ' AND (name LIKE ? OR description LIKE ? OR item_code LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
     if (category) {
       sql += ' AND category = ?';
@@ -46,12 +46,12 @@ function getItem(req, res, next) {
 
 function createItem(req, res, next) {
   try {
-    const { name, description, unit, category } = req.body;
+    const { name, item_code, description, unit, category } = req.body;
     if (!name) throw new AppError('Name is required', 400);
 
     const id = runAndSave(
-      'INSERT INTO items (name, description, unit, category) VALUES (?, ?, ?, ?)',
-      [name, description || null, unit || 'pcs', category || null]
+      'INSERT INTO items (name, item_code, description, unit, category) VALUES (?, ?, ?, ?, ?)',
+      [name, item_code || null, description || null, unit || 'pcs', category || null]
     );
     const item = queryOne('SELECT * FROM items WHERE id = ?', [id]);
     logAudit(req.user ? req.user.id : null, 'create', 'item', id, null, item);
@@ -67,11 +67,12 @@ function updateItem(req, res, next) {
     const existing = queryOne('SELECT * FROM items WHERE id = ?', [Number(id)]);
     if (!existing) throw new AppError('Item not found', 404);
 
-    const { name, description, unit, category } = req.body;
+    const { name, item_code, description, unit, category } = req.body;
     runAndSave(
-      `UPDATE items SET name = ?, description = ?, unit = ?, category = ?, updated_at = datetime('now') WHERE id = ?`,
+      `UPDATE items SET name = ?, item_code = ?, description = ?, unit = ?, category = ?, updated_at = datetime('now') WHERE id = ?`,
       [
         name ?? existing.name,
+        item_code !== undefined ? item_code : existing.item_code,
         description ?? existing.description,
         unit ?? existing.unit,
         category ?? existing.category,
