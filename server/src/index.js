@@ -26,6 +26,9 @@ const organizationRoutes = require('./routes/organizations.routes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy (Railway, Render, etc.)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || true, credentials: true }));
@@ -79,6 +82,15 @@ app.use(errorHandler);
 async function start() {
   try {
     await initDb();
+
+    // Auto-seed if database is empty (first deploy)
+    const { queryOne } = require('./db/connection');
+    const userCount = queryOne('SELECT COUNT(*) as count FROM users');
+    if (userCount.count === 0) {
+      console.log('Empty database detected, running initial seed...');
+      await require('./db/seed')({ skipInit: true });
+    }
+
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });

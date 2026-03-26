@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const { initDb, runAndSave, queryOne } = require('./connection');
 
-async function seed() {
-  await initDb();
+async function seed({ skipInit = false } = {}) {
+  if (!skipInit) await initDb();
 
   console.log('Seeding database...');
 
@@ -256,10 +256,14 @@ async function seed() {
   console.log(`Created ${timeline.length} timeline entries`);
 
   console.log('\nSeed completed successfully!');
-  process.exit(0);
 }
 
-seed().catch((err) => {
-  console.error('Seed failed:', err);
-  process.exit(1);
-});
+module.exports = seed;
+
+// Run directly: node seed.js
+if (require.main === module) {
+  seed().then(() => process.exit(0)).catch((err) => {
+    console.error('Seed failed:', err);
+    process.exit(1);
+  });
+}
