@@ -3,7 +3,7 @@ const fs = require('fs');
 const { getDb, queryAll, runAndSave, save } = require('../db/connection');
 const { AppError } = require('../utils/errors');
 
-const DB_PATH = path.join(__dirname, '..', '..', 'data', 'procurement.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', '..', 'data', 'procurement.db');
 
 const TABLE_ORDER = [
   'users',

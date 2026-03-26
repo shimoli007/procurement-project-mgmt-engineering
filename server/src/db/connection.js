@@ -2,7 +2,7 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, '..', '..', 'data', 'procurement.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', '..', 'data', 'procurement.db');
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
 let db = null;
