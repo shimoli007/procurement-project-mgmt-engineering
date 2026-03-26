@@ -32,6 +32,11 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || true, credentials: true }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false }));
 app.use(express.json({ limit: '5mb' }));
 
+// Health check (before auth routes)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Auth rate limiter (stricter)
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 15, message: { error: 'Too many login attempts, please try again later' } });
 
@@ -58,11 +63,6 @@ app.use('/api/organization', organizationRoutes);
 const path = require('path');
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
 app.use(express.static(clientDist));
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // SPA fallback - serve index.html for all non-API routes
 app.get('*', (req, res, next) => {
